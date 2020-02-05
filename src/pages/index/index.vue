@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <HeaderWithFooter>
+      <IndexSector />
       <img src="../../assets/logo.png">
       <div>
         <p>
@@ -17,13 +18,14 @@
 
 <script>
 import HelloWorld from '../../components/HelloWorld.vue'
-import HeaderWithFooter from "@/components/HeaderWithFooter.vue";
-
+import HeaderWithFooter from "@/components/Container/HeaderWithFooter.vue";
+import IndexSector from "@/components/Sector/IndexSector";
 export default {
   name: 'app',
   components: {
     HelloWorld,
-    HeaderWithFooter
+    HeaderWithFooter,
+    IndexSector
   }
 }
 </script>
@@ -35,6 +37,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+
 }
 </style>
