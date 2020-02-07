@@ -7,7 +7,9 @@
         <el-container>
             <el-aside width="60%">
                 <h2>Title</h2>
-                <div class="player">player</div>
+
+                    <VideoPlayer class="player" :options="videoOptions"/>
+
 
             </el-aside>
             <el-main width="30%">Main</el-main>
@@ -16,22 +18,39 @@
 </template>
 
 <script>
-
+    import VideoPlayer from "@/components/VideoPlayer";
     import HeaderWithoutFooter from "@/components/Container/HeaderWithoutFooter";
 
     export default {
         name: 'app',
         components: {
-
+            VideoPlayer,
             HeaderWithoutFooter
 
+        },
+        data() {
+            return {
+                videoOptions: {
+                    autoplay: true,
+                    controls: true,
+                    height:360,
+                    language:'zh-CN',
+                    sources: [
+                        {
+                            src:
+                                "http://192.168.3.101:8011/player/video_name.m3u8",
+                            type: "application/x-mpegURL"
+                        }
+                    ]
+                }
+            }
         }
     }
 </script>
 
 <style>
 
-    .el-container{
+    .el-container {
         width: 100%;
     }
 
@@ -59,8 +78,9 @@
     }
 
     .player {
-        width: 64%;
-        height: 540px;
+        width: 640px;
+        height: 360px;
+        object-fit: fill;
         background-color: #42b983;
         margin: 20px;
     }

@@ -10,6 +10,7 @@
   "dependencies": {
     "core-js": "^3.4.4",
     "element-ui": "^2.4.5",
+    "video.js": "^7.6.6",
     "vue": "^2.6.10"
   },
   "devDependencies": {
