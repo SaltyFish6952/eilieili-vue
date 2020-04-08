@@ -3,7 +3,7 @@
         <el-header>
             <Navigator/>
         </el-header>
-        <el-main>
+        <el-main class="main">
             <slot></slot>
         </el-main>
         <el-footer>Copyright © 2019 eilieili.salty-fish.website All rights reserved</el-footer>
@@ -27,7 +27,7 @@
     .el-main {
         /*background-color: #E9EEF3;*/
         color: #333;
-        text-align: center;
+
 
     }
 
@@ -39,9 +39,11 @@
         line-height: 60px;
     }
 
-    .el-main{
-        width: 80%;
+    .main {
+        width: 1300px;
         margin: auto;
+        padding: 5px;
+
     }
 
 </style>

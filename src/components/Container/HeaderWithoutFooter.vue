@@ -3,7 +3,7 @@
         <el-header>
             <Navigator/>
         </el-header>
-        <el-main>
+        <el-main class="main">
             <slot></slot>
         </el-main>
     </el-container>
@@ -36,8 +36,9 @@
         line-height: 60px;
     }
 
-    .el-main{
-        width: 90%;
+    .main{
+        width: 1300px;
         margin: auto;
+        padding: 5px;
     }
 </style>
