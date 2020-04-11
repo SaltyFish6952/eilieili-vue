@@ -1,17 +1,26 @@
 import request from '@/utils/request'
 
+export function getRecommendRandomVideos(params) {
+    return request({
+        url: '/randomVideos/name',
+        method: 'get',
+        params: params
+    })
+}
+
+
 /***
  * 接口：/randomVideos get方法
  * 功能：获取某一sector的随机视频列表
- * @param param 可选参数：{sectorId:Number}
+ * @param params 可选参数：{sectorId:Number}
  * @returns {AxiosPromise}
  */
 
-export function getSectorRandomVideos(param) {
+export function getSectorRandomVideos(params) {
     return request({
-        url: '/randomVideos',
+        url: '/randomVideos/sector',
         method: 'get',
-        params: param
+        params: params
     })
 }
 
@@ -48,7 +57,7 @@ export function getVideoInfo(params) {
 }
 
 /***
- * 接口：/comment get方法
+ * 接口：/comments get方法
  * 功能：获取video评论
  * @param params 参数：{videoId,page}
  * @returns {AxiosPromise}
@@ -57,6 +66,21 @@ export function getVideoInfo(params) {
 export function getComments(params) {
     return request({
         url: '/comments',
+        method: 'get',
+        params: params
+    })
+}
+
+/***
+ * 接口：/replies get方法
+ * 功能：获取comment的replies
+ * @param params 参数：{commentId}
+ * @returns {AxiosPromise}
+ */
+
+export function getReplies(params) {
+    return request({
+        url: '/replies',
         method: 'get',
         params: params
     })

@@ -34,7 +34,7 @@ function mock() {
     }
 
     //mock video
-    const videoLength = 50;
+    const videoLength = 500;
 
     for (let i = 1; i <= videoLength; i++) {
         videos.push({
@@ -66,7 +66,7 @@ function mock() {
 
     //mock comments
 
-    const commentLength = Mock.Random.natural(300, 99999);
+    const commentLength = Mock.Random.natural(300, 500);
 
     for (let i = 1; i <= commentLength; i++) {
         comments.push({
@@ -74,13 +74,13 @@ function mock() {
             userId: getRandomArrayElements(users, 1)[0].userId,
             commentId: String(i),
             commentText: Mock.Random.paragraph(1),
-            commentTime: Mock.Random.date('T')
+            commentTime: Mock.Random.datetime()
         })
     }
 
     //mock replies
     let o = 1;
-    while (o <= Mock.Random.natural(0, videoLength * 100)) {
+    while (o <= Mock.Random.natural(0, videoLength * 1000)) {
         let replyerId = getRandomArrayElements(users, 1)[0].userId;
         let replyToId = getRandomArrayElements(users, 1)[0].userId;
         let commentId = getRandomArrayElements(comments, 1)[0].commentId;
@@ -99,10 +99,11 @@ function mock() {
                 replyerId: replyerId,
                 replyToId: isToComment ? null : replyToId,
                 replyText: Mock.Random.paragraph(1),
-                replyTime: Mock.Random.date('T'),
+                replyTime: Mock.Random.datetime(),
                 commentId: commentId
             })
         }
+        o++;
 
     }
 
@@ -180,6 +181,7 @@ function mock() {
 mock();
 window.console.log(rankings, videos, users, sectors);
 window.console.log(comments, likes, subscribes, favorites);
+window.console.log(replies)
 
 export {
     rankings,
@@ -189,7 +191,8 @@ export {
     comments,
     likes,
     subscribes,
-    favorites
+    favorites,
+    replies
 }
 
 

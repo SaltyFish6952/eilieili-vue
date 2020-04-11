@@ -24,6 +24,7 @@
     import {getAllVideos as getAllVideosApi} from "@/api/video";
     import {getSector as getSectorApi} from "@/api/sector";
     import VideoBlock from "@/components/VideoCards/VideoBlock";
+    import {throwError} from "@/utils/error";
 
 
     export default {
@@ -46,18 +47,28 @@
             getVideosByPage(page) {
                 getAllVideosApi({"sectorId": this.sectorId, "page": page}).then(response => {
                     const {videos} = response.data
-                    this.videos = videos
+                    if (videos === undefined) {
+                        throwError(response, this)
+                    } else {
+                        this.videos = videos
 
-                    this.totalPage = Math.ceil(this.videos.length / 12);
+                        this.totalPage = Math.ceil(this.videos.length / 12);
 
-                    this.showVideos()
+                        this.showVideos()
+                    }
+
                 })
             },
             getSectorInfo() {
                 getSectorApi({"sectorId": this.sectorId}).then(response => {
-                    window.console.log(response)
+
                     const {sector} = response.data
-                    this.sectorName = sector.sectorName
+                    if (sector === undefined) {
+                        throwError(response, this)
+                    } else {
+                        this.sectorName = sector.sectorName
+                    }
+
 
                 })
             },

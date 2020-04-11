@@ -1,104 +1,13 @@
-// export const video_1 = [
-//     {
-//         videoId: 1,
-//         userId: 1,
-//         sectorId: 1,
-//         videoName: "反重力靠谱吗？1",
-//         videoBrief: "存在反重力UFO吗？离子飘升机原理揭秘1"
-//     },
-//     {
-//         videoId: 2,
-//         userId: 1,
-//         sectorId: 1,
-//         videoName: "2反重力靠谱吗？",
-//         videoBrief: "2存在反重力UFO吗？离子飘升机原理揭秘"
-//     },
-//     {
-//         videoId: 3,
-//         userId: 1,
-//         sectorId: 1,
-//         videoName: "3反重力靠谱吗？",
-//         videoBrief: "3存在反重力UFO吗？离子飘升机原理揭秘"
-//     },
-//     {
-//         videoId: 4,
-//         userId: 1,
-//         sectorId: 1,
-//         videoName: "4反重力靠谱吗？",
-//         videoBrief: "4存在反重力UFO吗？离子飘升机原理揭秘"
-//     },
-//     {
-//         videoId: 5,
-//         userId: 1,
-//         sectorId: 1,
-//         videoName: "5反重力靠谱吗？",
-//         videoBrief: "5存在反重力UFO吗？离子飘升机原理揭秘"
-//     }, {
-//         videoId: 6,
-//         userId: 1,
-//         sectorId: 1,
-//         videoName: "6反重力靠谱吗？",
-//         videoBrief: "6存在反重力UFO吗？离子飘升机原理揭秘"
-//     }, {
-//         videoId: 7,
-//         userId: 1,
-//         sectorId: 1,
-//         videoName: "7反重力靠谱吗？",
-//         videoBrief: "7存在反重力UFO吗？离子飘升机原理揭秘"
-//     }, {
-//         videoId: 8,
-//         userId: 1,
-//         sectorId: 1,
-//         videoName: "8反重力靠谱吗？",
-//         videoBrief: "8存在反重力UFO吗？离子飘升机原理揭秘"
-//     }, {
-//         videoId: 9,
-//         userId: 1,
-//         sectorId: 1,
-//         videoName: "9反重力靠谱吗？",
-//         videoBrief: "9存在反重力UFO吗？离子飘升机原理揭秘"
-//     }, {
-//         videoId: 118,
-//         userId: 1,
-//         sectorId: 1,
-//         videoName: "118反重力靠谱吗？",
-//         videoBrief: "8存在反重力UFO吗？离子飘升机原理揭秘"
-//     }, {
-//         videoId: 128,
-//         userId: 1,
-//         sectorId: 1,
-//         videoName: "128反重力靠谱吗？",
-//         videoBrief: "8存在反重力UFO吗？离子飘升机原理揭秘"
-//     }, {
-//         videoId: 138,
-//         userId: 1,
-//         sectorId: 1,
-//         videoName: "148反重力靠谱吗？",
-//         videoBrief: "8存在反重力UFO吗？离子飘升机原理揭秘"
-//     }, {
-//         videoId: 158,
-//         userId: 1,
-//         sectorId: 1,
-//         videoName: "158反重力靠谱吗？",
-//         videoBrief: "8存在反重力UFO吗？离子飘升机原理揭秘"
-//     }, {
-//         videoId: 168,
-//         userId: 1,
-//         sectorId: 1,
-//         videoName: "168反重力靠谱吗？",
-//         videoBrief: "8存在反重力UFO吗？离子飘升机原理揭秘"
-//     }, {
-//         videoId: 178,
-//         userId: 1,
-//         sectorId: 1,
-//         videoName: "178反重力靠谱吗？",
-//         videoBrief: "8存在反重力UFO吗？离子飘升机原理揭秘"
-//     }
-// ]
 
-import {comments, favorites, likes, videos} from "./data";
+
+import {comments, favorites, likes, replies, videos} from "./data";
 import {getRandomArrayElements} from "./utils";
+// import Mock from "mockjs";
 
+// function getVideoInfo(videoId) {
+//     let video = videos[videoId - 1]
+//     return video;
+// }
 
 function getVideos(sectorId) {
     let arr = [];
@@ -109,6 +18,16 @@ function getVideos(sectorId) {
     }
     return arr;
 }
+
+function getVideosByName(videoName) {
+    return videos.filter(function (video) {
+
+        const key = videoName.substring(0,1);
+
+        return (video.videoName.indexOf(key) >= 0)
+    });
+}
+
 
 function getComments(videoId, page) {
     let arr = [];
@@ -138,12 +57,41 @@ function getCount(arr, videoId) {
     return count;
 }
 
+function getReplies(commentId) {
+
+    const arr = [];
+
+    for (let i = 0; i < replies.length; i++) {
+        if (replies[i].commentId === commentId) {
+            arr.push(replies[i]);
+        }
+    }
+
+    return arr;
+}
+
+
 export default [
     {
-        url: '/randomVideos',
+        url: '/randomVideos/name',
+        type: 'get',
+        response: (req) => {
+            const {videoName} = req.query;
+            return {
+                msg: "操作成功",
+                code: 0,
+                data: {
+                    videos:
+                        getRandomArrayElements(getVideosByName(videoName), 8)
+                }
+            }
+        }
+    },
+    {
+        url: '/randomVideos/sector',
         type: 'get',
         response: (req, res) => {
-            window.console.log(req, res)
+            window.console.log(req, res);
 
             const {sectorId} = req.query;
             if (sectorId !== undefined) {
@@ -169,9 +117,9 @@ export default [
         url: '/allVideos',
         type: 'get',
         response: (req, res) => {
-            window.console.log(req, res)
-            const {sectorId} = req.query
-            window.console.log(req.query.sectorId)
+            window.console.log(req, res);
+            const {sectorId} = req.query;
+            window.console.log(req.query.sectorId);
             if (sectorId !== undefined) {
                 return {
                     msg: "操作成功",
@@ -194,7 +142,7 @@ export default [
         type: 'get',
         response: (req) => {
             const {videoId} = req.query;
-            window.console.log(req)
+            window.console.log(req);
             return {
                 msg: "操作成功",
                 code: 0,
@@ -254,6 +202,20 @@ export default [
                         videoId: videoId,
                         count: getCount(likes, videoId)
                     }
+                }
+            }
+        }
+    },
+    {
+        url: '/replies',
+        type: 'get',
+        response: (req) => {
+            const {commentId} = req.query;
+            return {
+                msg: '操作成功',
+                code: 0,
+                data: {
+                    replies: getReplies(commentId)
                 }
             }
         }

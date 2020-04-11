@@ -3,8 +3,6 @@
         <el-divider/>
         <div v-for="(item, $index) in this.comments" :key="$index">
             <CommentItem :comment="item"/>
-            <div>reply</div>
-
             <el-divider/>
         </div>
 
@@ -51,16 +49,10 @@
 
                 })
             },
-            // getCommentsInit() {
-            //     getCommentsApi({videoId: this.videoId, page: this.page}).then(response => {
-            //         const {comments} = response.data;
-            //         this.comments = comments;
-            //
-            //     })
-            // },
+
+
         },
         mounted() {
-            // this.getCommentsInit();
         }
     }
 </script>
@@ -70,5 +62,6 @@
     .infinite-wrapper {
         overflow: auto;
     }
+
 
 </style>

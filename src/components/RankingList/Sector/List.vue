@@ -7,7 +7,7 @@
                     type="index"
                     label="排行榜"
                     width="63%"
-                    >
+            >
             </el-table-column>
             <el-table-column>
                 <!--                <template slot-scope="scope">-->
@@ -37,6 +37,7 @@
     import MoreButton from "@/components/Button/MoreButton";
     import Popover from "@/components/RankingList/Sector/Popover";
     import {getRanking as getRankingListApi} from "@/api/ranking";
+    import {throwError} from "@/utils/error";
 
     export default {
         components: {
@@ -55,15 +56,21 @@
         methods: {
 
             getRankingList() {
-                getRankingListApi({sectorId:this.rankingSectorId})
-                    .then(response =>{
-                        window.console.log(response)
-                        this.rankings = response.data.videos.slice(0,8)
+                getRankingListApi({sectorId: this.rankingSectorId})
+                    .then(response => {
+                        const {videos} = response.data;
+                        if (videos === undefined) {
+                            throwError(response, this)
+                        } else {
+                            this.rankings = response.data.videos.slice(0, 8)
+                        }
+
+
                     })
 
             }
         },
-        created(){
+        created() {
             this.getRankingList();
         }
     }

@@ -32,6 +32,7 @@
     import MoreButton from "@/components/Button/MoreButton";
     import RankingList from "@/components/RankingList/Sector/List";
     import {getSectorRandomVideos as getSectorRandomVideosApi} from "@/api/video";
+    import {throwError} from "@/utils/error";
 
     export default {
         name: "IndexSector",
@@ -50,8 +51,13 @@
 
             getVideos(sectorId) {
                 getSectorRandomVideosApi({sectorId: sectorId}).then(response => {
-                    window.console.log(response)
-                    this.videos = response.data.videos
+                    const {videos} = response.data;
+                    if (videos === undefined) {
+                        throwError(response, this);
+                    } else {
+                        this.videos = videos;
+                    }
+
                 })
             }
         },

@@ -1,4 +1,13 @@
 module.exports = {
+    devServer: {
+        proxy: {
+            '/api': {
+                target: 'http://localhost:8088',
+                changeOrigin: true,
+                ws: true
+            }
+        }
+    },
 
     pages: {
         index: {
@@ -19,7 +28,7 @@ module.exports = {
             entry: 'src/pages/video/index.js',
             template: 'public/index.html',
             filename: 'video',
-            title: 'HHHHHHHHHHHHHHHH',
+            title: '',
             chunks: ['chunk-vendors', 'chunk-common', 'video']
         },
         login: {

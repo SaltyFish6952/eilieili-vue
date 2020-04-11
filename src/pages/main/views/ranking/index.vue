@@ -1,7 +1,7 @@
 <template>
     <HeaderWithFooter>
         <el-page-header @back="goBack" :content="content"/>
-<!--        <el-divider/>-->
+        <!--        <el-divider/>-->
 
         <DetailList :ranking-list="rankingList"/>
 
@@ -16,6 +16,7 @@
         getRanking as getRankingApi
     } from "@/api/ranking"
     import {getSector as getSectorApi} from "@/api/sector";
+    import {throwError} from "@/utils/error";
 
     export default {
         name: "index",
@@ -40,21 +41,42 @@
 
                     getRankingApi({"sectorId": this.$route.params.sectorId})
                         .then(response => {
-                            const {videos} = response.data
-                            this.rankingList = videos
+                            const {videos} = response.data;
+                            if (videos === undefined) {
+                                throwError(response, this);
+                            } else {
+                                this.rankingList = videos;
+                            }
+
                         })
 
                     getSectorApi({"sectorId": this.$route.params.sectorId})
                         .then(response => {
-                            const {sector} = response.data
-                            this.sector = sector
+
+                            const {sector} = response.data;
+                            if (sector === undefined) {
+                                throwError(response, this);
+                            } else {
+                                this.rankingList = sector;
+                            }
+
                         })
 
                 } else {
 
                     getRankingApi().then(response => {
                         const {videos} = response.data
-                        this.rankingList = videos
+
+                        if (videos === undefined) {
+                            throwError(response, this);
+                        } else {
+                            this.rankingList = videos
+                        }
+
+
+
+
+
                     })
                 }
 

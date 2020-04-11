@@ -112,7 +112,7 @@ export default [
             const {userId} = res.query;
 
             return {
-                code: 20000,
+                code: 0,
                 data: {
                     user: getUser(userId)
                 }

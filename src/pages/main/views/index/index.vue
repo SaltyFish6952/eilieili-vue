@@ -22,6 +22,7 @@
     import HeaderWithFooter from "@/components/Container/HeaderWithFooter.vue";
     import IndexSector from "@/components/IndexSector";
     import {getSector as getSectorApi} from "@/api/sector";
+    import {throwError} from "@/utils/error";
 
 
     export default {
@@ -40,8 +41,13 @@
         methods: {
             getSectors() {
                 getSectorApi().then(response => {
-                    window.console.log(response);
-                    this.sectors = response.data.sectors;
+
+                    const {sectors} = response.data;
+                    if (sectors === undefined) {
+                        throwError(response, this);
+                    } else {
+                        this.sectors = sectors;
+                    }
                 })
             }
         },

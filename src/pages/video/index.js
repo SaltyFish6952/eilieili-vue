@@ -9,11 +9,11 @@ import '../../plugins/element.js'
 Vue.config.productionTip = false
 
 //mock_api
-import {mockXHR} from '../../../mock'
+// import {mockXHR} from '../../../mock'
 
-if (process.env.NODE_ENV === 'development') {
-    mockXHR()
-}
+// if (process.env.NODE_ENV === 'development') {
+//     mockXHR()
+// }
 
 new Vue({
     store,
