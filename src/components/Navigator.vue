@@ -1,16 +1,21 @@
 <template>
     <el-row>
         <el-col :span="8">
-            <el-menu class="grid-content " mode="horizontal">
+            <el-menu style="border: 0;" mode="horizontal">
                 <el-menu-item @click="redirctTo('/')">主页</el-menu-item>
-                <el-menu-item  @click="redirctTo('/ranking')">排行榜</el-menu-item>
+                <el-menu-item @click="redirctTo('/ranking')">排行榜</el-menu-item>
             </el-menu>
         </el-col>
         <el-col :span="8">
             <div class="search_panel">
-                <el-input v-model="search_input" placeholder="请输入内容">
+                <el-autocomplete
+                        style="width: 400px;"
+                        v-model="search_input"
+                        placeholder="请输入内容"
+                        :fetch-suggestions="querySearch"
+                        @select="selectedSearch">
                     <el-button slot="append" icon="el-icon-search"></el-button>
-                </el-input>
+                </el-autocomplete>
             </div>
 
         </el-col>
@@ -18,28 +23,26 @@
             <div class="user">
 
 
-
-
                 <!--                <el-button @click="redirctTo('/login')">登录</el-button>-->
                 <div v-if="this.$store.getters.uid === ''">
-                    <el-button  @click="switchLoginVisible">登录</el-button>
-                    <el-button  @click="switchRegisterVisible">注册</el-button>
+                    <el-button @click="switchLoginVisible">登录</el-button>
+                    <el-button @click="switchRegisterVisible">注册</el-button>
                 </div>
                 <div v-else>
-                    <el-dropdown class="user_icon">
-                        <el-avatar  size="medium" :src="iconPath"/>
+                    <el-dropdown @command="handleDropdownClick" class="user_icon">
+                        <el-avatar size="medium"
+                                   :src="this.$store.getters.avatar ? this.$store.getters.avatar: iconPath"/>
                         <el-dropdown-menu slot="dropdown">
-                            <el-dropdown-item icon="el-icon-user">
+                            <el-dropdown-item icon="el-icon-user" :command="'/home/' + $store.getters.uid">
                                 个人中心
                             </el-dropdown-item>
-                            <el-dropdown-item icon="el-icon-video-camera">
-                                投稿管理
+                            <el-dropdown-item icon="el-icon-video-camera" command="/upload">
+                                上传中心
                             </el-dropdown-item>
                         </el-dropdown-menu>
                     </el-dropdown>
                     <el-button @click="logout">登出</el-button>
                 </div>
-
 
 
                 <LoginDialog :dialog-form-visible="loginDialogVisible"
@@ -61,6 +64,8 @@
 
     import LoginDialog from "@/components/Dialog/LoginDialog";
     import RegisterDialog from "@/components/Dialog/RegisterDialog";
+    import {getVideoQuery} from "@/api/video";
+    import {throwError} from "@/utils/error";
 
     export default {
         components: {
@@ -77,6 +82,35 @@
             }
         },
         methods: {
+            querySearch: function (queryString, callback) {
+
+                if (queryString !== '') {
+                    getVideoQuery({query: queryString}).then(response => {
+
+                        try {
+                            const {videos} = response.data;
+
+                            const res = videos.length === 0 ? [] : videos;
+
+                            callback(res)
+                        } catch (e) {
+                            throwError(e, response, this)
+                            callback([]);
+                        }
+
+
+                    })
+                } else
+                    callback([])
+
+
+            },
+            selectedSearch: function (item) {
+
+                if (item.id !== -1)
+                    this.redirctTo("/video/" + item.id)
+
+            },
             redirctTo: function (toPath) {
                 // let nowPath = window.document.location.pathname;
                 // window.console.log(nowPath,toPath)
@@ -104,18 +138,22 @@
             logout: function () {
                 this.$store.dispatch('user/logout').then((msg) => {
                     // this.close();
-                    if(msg === 0){
+                    if (msg === 0) {
                         this.$message({
                             message: '已退出登录',
                             type: 'success'
                         });
-                    }else {
+                    } else {
                         this.$message.error(msg);
                     }
 
                     // alert('submit!AAA');
                 })
+            },
+            handleDropdownClick(command) {
+                this.redirctTo(command)
             }
+
         }
 
 
@@ -162,11 +200,10 @@
     }
 
     .search_panel {
+
         border-radius: 4px;
         min-height: 36px;
     }
-
-
 
 
 </style>

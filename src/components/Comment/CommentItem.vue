@@ -69,23 +69,31 @@
         methods: {
             getUserInfo() {
                 getUserInfoApi({userId: this.comment.userId}).then(response => {
-                    const {user} = response.data;
-                    if (user === undefined) {
-                        throwError(response, this)
-                    } else {
+
+                    try {
+                        const {user} = response.data;
                         this.user = user;
+
+                    } catch (e) {
+                        throwError(e, response, this)
+
                     }
+
 
                 })
             },
             getReply() {
                 getRepliesApi({commentId: this.comment.commentId}).then(response => {
-                    const {replies} = response.data;
-                    if (replies === undefined) {
-                        throwError(response, this)
-                    } else {
+
+                    try {
+                        const {replies} = response.data;
                         this.replies = replies;
+
+                    } catch (e) {
+                        throwError(e, response, this)
+
                     }
+
 
                 })
 

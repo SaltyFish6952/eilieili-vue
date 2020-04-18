@@ -4,7 +4,7 @@
             <el-link :underline="false" :href="'/video/' + videoId" target="_blank">
                 <el-image class="image" :src="videoPicPath" lazy/>
                 <div style="padding: 14px;">
-                    <span>{{videoName}}</span>
+                    <div class="name">{{videoName}}</div>
                     <div class="bottom clearfix">
                         {{videoId}}
                         <!--                    <time class="time">{{ currentDate }}</time>-->
@@ -72,6 +72,16 @@
         width: 192px;
         height: 108px;
         display: block;
+    }
+
+    .card .name{
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        width: 164px;
+        height: 38.4px;
+
     }
 
     .clearfix:before,

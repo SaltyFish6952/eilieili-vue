@@ -31,7 +31,7 @@
     import VideoBlock from "@/components/VideoCards/VideoBlock";
     import MoreButton from "@/components/Button/MoreButton";
     import RankingList from "@/components/RankingList/Sector/List";
-    import {getSectorRandomVideos as getSectorRandomVideosApi} from "@/api/video";
+    import {getRandomVideos as getRandomVideosApi} from "@/api/video";
     import {throwError} from "@/utils/error";
 
     export default {
@@ -50,13 +50,17 @@
         methods: {
 
             getVideos(sectorId) {
-                getSectorRandomVideosApi({sectorId: sectorId}).then(response => {
-                    const {videos} = response.data;
-                    if (videos === undefined) {
-                        throwError(response, this);
-                    } else {
+                getRandomVideosApi({sectorId: sectorId}).then(response => {
+
+                    try {
+                        const {videos} = response.data;
                         this.videos = videos;
+
+                    } catch (e) {
+                        throwError(e, response, this);
+
                     }
+
 
                 })
             }
@@ -82,8 +86,7 @@
 
     .sector {
         /*background-color: darkred;*/
-        height: 480px;
-        margin: 2px;
+        margin: 5px;
     }
 
     .sector .el-main {

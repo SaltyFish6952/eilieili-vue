@@ -2,7 +2,7 @@
     <div>
         <el-image class="image"
                   :src="scope.row.videoPicPath"
-                  lazy/>
+                  />
         <div class="detail">
             <el-link class="info" :underline="false" :href="'/video?videoId=' + scope.row.videoId"
                      target="_blank">

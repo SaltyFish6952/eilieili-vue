@@ -31,12 +31,19 @@ module.exports = {
             title: '',
             chunks: ['chunk-vendors', 'chunk-common', 'video']
         },
-        login: {
-            entry: 'src/pages/login/login.js',
+        home: {
+            entry: 'src/pages/home/index.js',
             template: 'public/index.html',
-            filename: 'login',
-            title: 'loginPage',
-            chunks: ['chunk-vendors', 'chunk-common', 'login']
+            filename: 'home',
+            title: 'home',
+            chunks: ['chunk-vendors', 'chunk-common', 'home']
+        },
+        upload:{
+            entry: 'src/pages/upload/index.js',
+            template: 'public/index.html',
+            filename: 'upload',
+            title: 'upload',
+            chunks: ['chunk-vendors', 'chunk-common', 'upload']
         }
 
     }

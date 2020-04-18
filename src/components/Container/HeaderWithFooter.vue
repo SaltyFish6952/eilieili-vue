@@ -42,7 +42,7 @@
     .main {
         width: 1300px;
         margin: auto;
-        padding: 5px;
+        padding: 10px 5px;
 
     }
 

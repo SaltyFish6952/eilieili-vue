@@ -6,38 +6,43 @@
     <HeaderWithoutFooter>
         <el-container>
             <el-main width="60%">
-                <h2 style="display: block; margin: 10px 0;">{{this.video.videoName}}</h2>
-
+                <h2 style="display: block; margin: 10px 0;">{{video.videoName}}</h2>
+                <p style="text-align: left; font-size: 12px; margin: 0 0 10px 10px; color: #8c939d;">{{video.videoViewTimes}}播放</p>
                 <div style="width: 896px;">
-                    <VideoPlayer class="player"/>
+                    <VideoPlayer v-if="video.videoId !== null && video.maxQuality !== null"
+                                 :video-id="video.videoId"
+                                 :video-path="video.videoPath"
+                                 :video-pic-path="video.videoPicPath"
+                                 :video-max-quality="video.maxQuality"
+                                 class="player"/>
                     <div class="bar">
                         <div class="function_btns">
 
-                            <el-button type="text" :title="'点赞数' + this.likes" style="margin-left: 0;">
+                            <el-button type="text" :title="'点赞数' + video.likes" style="margin-left: 0;">
                                 <svg class="icon" aria-hidden="true">
                                     <use xlink:href="#icon-dianzan"></use>
                                 </svg>
-                                {{this.likes ? this.likes : '--'}}
+                                {{video.likes !== null ? video.likes : '--'}}
                             </el-button>
-                            <el-button type="text" :title="'收藏数' + this.favorites">
+                            <el-button type="text" :title="'收藏数' + video.favorites">
                                 <svg class="icon" aria-hidden="true">
                                     <use xlink:href="#icon-shoucang"></use>
                                 </svg>
-                                {{this.favorites ? this.favorites : '--'}}
+                                {{video.favorites !== null ? video.favorites : '--'}}
                             </el-button>
-                            <el-button type="text">
+                            <el-button type="text" @click="shareURL">
                                 <svg class="icon" aria-hidden="true">
                                     <use xlink:href="#icon-zhuanfa"></use>
                                 </svg>
                                 转发
                             </el-button>
                         </div>
-                        <el-divider/>
+                        <el-divider style=""/>
                     </div>
 
 
-                    <div v-if="this.video.videoBrief !== null" class="brief">
-                        <p>{{this.video.videoBrief}}</p>
+                    <div v-if="video.videoBrief !== null" class="brief">
+                        <p>{{video.videoBrief}}</p>
                         <el-divider/>
                     </div>
 
@@ -50,8 +55,8 @@
                         <div class="input">
                             <div class="fake" v-if="this.$store.getters.uid === ''">
                                 <div class="commentIcon">
-                                    <el-avatar v-if="user.userPicPath !== undefined" :size="50"
-                                               :src="user.userPicPath"/>
+                                    <el-avatar v-if="video.userPicPath !== undefined" :size="50"
+                                               :src="video.userPicPath"/>
                                 </div>
 
                                 <div class="inputComment">
@@ -61,7 +66,7 @@
                             </div>
                             <div v-else>
                                 <div class="commentIcon">
-                                    <el-avatar :size="50" :src="user.userPicPath"/>
+                                    <el-avatar :size="50" :src="video.userPicPath"/>
                                 </div>
 
                                 <div class="inputComment">
@@ -89,29 +94,43 @@
             <el-aside width="27%">
                 <div class="userInfo">
                     <div class="userIcon">
-                        <el-avatar :src="user.userPicPath" :size="50"></el-avatar>
+                        <el-avatar :src="video.userPicPath" :size="50"></el-avatar>
                     </div>
                     <div class="userName">
                         <el-link style="font-size: 20px; display: block;" :underline="false">
-                            {{user.userName}}
+                            {{video.userName}}
                         </el-link>
                     </div>
                     <p class="userLevel">
-                        Lv.{{user.userLevel}}
+                        Lv.{{video.userLevel}}
                     </p>
-                    <div class="subscribe">
+                    <div v-if="video.userId !== null && video.userId !== $store.getters.uid" class="subscribe">
                         <el-button>订阅</el-button>
                     </div>
 
                 </div>
                 <el-divider class="divider"/>
                 <div class="recommendList">
-                    <div v-for="(item, $index) in recommendVideos" :key="$index">
-                        <el-image :src="item.videoPicPath" lazy></el-image>
-                        <div>{{item.videoName}}</div>
-                        <div>{{item.videoViewTimes}}</div>
-                        <div>{{getUserInfo(item.userId).then()}}</div>
-                    </div>
+                    <el-link class="recommendItem" v-for="(item, $index) in recommendVideos" :key="$index"
+                             :href="'/video/'+item.videoId" :underline="false">
+                        <el-image class="image" :src="item.videoPicPath" lazy></el-image>
+                        <div style="float: left; width: 200px;">
+                            <p class="name">{{item.videoName}}</p>
+                            <div class="view_times">
+                                <i class="el-icon-video-camera"/>{{item.videoViewTimes}}
+                                <svg class="icon" aria-hidden="true">
+                                    <use xlink:href="#icon-dianzan"></use>
+                                </svg>
+                                {{item.likes}}
+                                <svg class="icon" aria-hidden="true">
+                                    <use xlink:href="#icon-shoucang"></use>
+                                </svg>
+                                {{item.favorites}}
+                            </div>
+                        </div>
+
+                        <!--                        <div>{{item.}}</div>-->
+                    </el-link>
                 </div>
 
             </el-aside>
@@ -125,15 +144,15 @@
 <script>
     import VideoPlayer from "@/components/VideoPlayer";
     import HeaderWithoutFooter from "@/components/Container/HeaderWithoutFooter";
+    import '@/assets/icons/iconfont.js'
+
     import {
         getVideoInfo as getVideoInfoApi,
-        getLikes as getLikesApi,
-        getFavorites as getFavoritesApi,
-        getComments as getCommentsCountApi,
-        getRecommendRandomVideos as getRecommendRandomVideosApi
+
+        getRecommendRandomVideos as getRecommendRandomVideosApi, getUserLike as getUserLikeApi
     } from "@/api/video";
     import CommentList from "@/components/Comment/CommentList";
-    import {getUserInfo as getUserInfoApi} from "@/api/user";
+
     import {throwError} from "@/utils/error";
 
 
@@ -153,20 +172,20 @@
                     videoPicPath: null,
                     videoPath: null,
                     videoViewTimes: null,
+                    maxQuality: null,
                     sectorId: null,
-                    userId: null
-                },
-                commentsCount: null,
-                likes: null,
-                favorites: null,
-                commentInput: '',
-                user: {
+                    sectorName: null,
                     userId: null,
                     userName: null,
                     userPicPath: require('../../../../assets/user.png'),
                     userLevel: null,
-                    userLevelProgress: null
+                    userLevelProgress: null,
+                    likes: null,
+                    favorites: null,
                 },
+                commentsCount: null,
+                commentInput: '',
+
                 recommendVideos: null
 
 
@@ -176,93 +195,60 @@
 
             getVideo() {
                 getVideoInfoApi({videoId: this.video.videoId}).then(response => {
-                    const {video} = response.data;
-                    if (video === undefined) {
-                        throwError(response, this)
-                    } else {
+
+                    try {
+                        const {video} = response.data;
                         this.video = video;
                         document.title = this.video.videoName;
-                        this.getUserInfo();
+
                         this.getRecommendVideo();
+
+                    } catch (e) {
+                        throwError(e, response, this)
                     }
+
 
                 })
             },
-            // getCommentsCount() {
-            //     getCommentsCountApi({videoId: this.video.videoId}).then(response => {
-            //         const {comments} = response.data;
-            //         if (comments === undefined) {
-            //             throwError(response, this)
-            //         } else {
-            //             this.commentsCount = comments.length;
-            //         }
-            //
-            //     })
-            // },
-            //
-            // getLikes() {
-            //     getLikesApi({videoId: this.video.videoId}).then(response => {
-            //         const {likes} = response.data;
-            //         if (likes === undefined) {
-            //             throwError(response, this)
-            //         } else {
-            //             this.likes = likes.count;
-            //         }
-            //
-            //     })
-            // },
-            // getFavorites() {
-            //     getFavoritesApi({videoId: this.video.videoId}).then(response => {
-            //         const {favorites} = response.data;
-            //         if (favorites === undefined) {
-            //             throwError(response, this)
-            //         } else {
-            //             this.favorites = favorites.count;
-            //         }
-            //
-            //
-            //     })
-            // },
+
+            getUserLike(){
+                getUserLikeApi({})
+            },
+
             getRecommendVideo() {
                 getRecommendRandomVideosApi({videoName: this.video.videoName}).then(response => {
-                    const {videos} = response.data;
-                    if (videos === undefined) {
-                        throwError(response, this)
-                    } else {
+
+                    try {
+                        const {videos} = response.data;
                         this.recommendVideos = videos;
+                    } catch (e) {
+                        throwError(e, response, this)
                     }
+
 
                 })
             },
-            // getUserInfo(param) {
-            //
-            //     if (param === undefined) {
-            //         getUserInfoApi({userId: this.video.userId}).then(response => {
-            //             const {user} = response.data;
-            //             if (user === undefined) {
-            //                 throwError(response, this)
-            //             } else {
-            //                 this.user = user;
-            //             }
-            //
-            //         })
-            //     } else {
-            //
-            //             getUserInfoApi({userId: param}).then(response => {
-            //                 const {user} = response.data;
-            //                 if (user === undefined) {
-            //                     throwError(response, this)
-            //                 } else {
-            //                     return user.userName
-            //                 }
-            //
-            //             })
-            //
-            //
-            //     }
-            //
-            //
-            // },
+            shareURL(){
+
+                const input = document.createElement('input');
+                input.setAttribute('readonly', 'readonly');
+                input.setAttribute('value', window.location.href);
+                document.body.appendChild(input);
+                input.select();
+                input.setSelectionRange(0, 9999);
+                // document.execCommand('Copy');
+
+                if (document.execCommand('Copy')) {
+                    // 复制成功
+                    this.$notify({
+                        title: '链接复制成功',
+                        message: '链接已复制到粘贴板，快去分享给好友吧！',
+                        type: 'success'
+                    });
+                }
+
+            },
+
             pushComment() {
 
                 //local
@@ -280,9 +266,6 @@
         mounted() {
             this.video.videoId = this.$route.params.videoId;
             this.getVideo();
-            this.getCommentsCount();
-            this.getLikes();
-            this.getFavorites();
 
 
         }
@@ -329,7 +312,7 @@
 
     .bar {
         margin: 5px 0;
-        height: 50px;
+
     }
 
     .bar .function_btns {
@@ -458,6 +441,45 @@
     .divider {
         float: left;
         margin: 5px 0;
+    }
+
+    .recommendList .image {
+        width: 128px;
+        height: 72px;
+        float: left;
+    }
+
+    .recommendList .name {
+
+        text-align: left;
+        margin: 5px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        height: 40px;
+    }
+
+    .recommendList .view_times {
+        text-align: left;
+    }
+
+    .recommendList .recommendItem {
+        float: left;
+        margin: 10px 2px;
+    }
+
+    .recommendItem .el-icon-video-camera, .icon {
+        font-size: 14px;
+        margin: 0 10px;
+    }
+
+    .icon {
+        width: 1em;
+        height: 1em;
+        vertical-align: -0.15em;
+        fill: currentColor;
+        overflow: hidden;
     }
 
 </style>

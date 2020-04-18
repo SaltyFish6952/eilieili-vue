@@ -10,7 +10,7 @@ Vue.config.productionTip = false
 
 //mock_api
 // import {mockXHR} from '../../../mock'
-
+//
 // if (process.env.NODE_ENV === 'development') {
 //     mockXHR()
 // }

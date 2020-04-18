@@ -56,13 +56,16 @@
         methods: {
 
             getRankingList() {
-                getRankingListApi({sectorId: this.rankingSectorId})
+                getRankingListApi({sectorId: this.rankingSectorId, isIndex: true})
                     .then(response => {
-                        const {videos} = response.data;
-                        if (videos === undefined) {
-                            throwError(response, this)
-                        } else {
-                            this.rankings = response.data.videos.slice(0, 8)
+
+                        try {
+                            const {rankings} = response.data;
+                            this.rankings = rankings
+
+                        } catch (e) {
+                            throwError(e, response, this)
+
                         }
 
 

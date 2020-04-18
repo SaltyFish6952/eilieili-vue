@@ -1,5 +1,5 @@
 // import {login, logout, getInfo} from '@/api/user'
-import {login} from '@/api/user'
+import {getUserInfo, login} from '@/api/user'
 
 import {getToken, setToken, removeToken, getUser, setUser, removeUser} from '@/utils/auth'
 import {Encrypt} from '@/utils/crypto'
@@ -13,16 +13,18 @@ const getDefaultState = () => {
         return {
             token: getToken(),
             name: user.userName,
-            // avatar: '',
+            avatar: user.userPicPath,
             uid: user.userId,
+            ulv: user.userLevel,
             ulvprogress: user.userLevelProgress
         }
     } else {
         return {
             token: '',
             name: '',
-            // avatar: '',
+            avatar: '',
             uid: '',
+            ulv: '',
             ulvprogress: ''
         }
     }
@@ -40,15 +42,18 @@ const mutations = {
     SET_NAME: (state, name) => {
         state.name = name
     },
+    SET_ULV: (state, ulv) => {
+        state.ulv = ulv
+    },
     SET_ULVPROGRESS: (state, ulvprogress) => {
         state.ulvprogress = ulvprogress
     },
     SET_UID: (state, uid) => {
         state.uid = uid
+    },
+    SET_AVATAR: (state, avatar) => {
+        state.avatar = avatar
     }
-    // SET_AVATAR: (state, avatar) => {
-    //     state.avatar = avatar
-    // }
 }
 
 const actions = {
@@ -66,9 +71,11 @@ const actions = {
                 if (response.code === 0) {
                     const {data} = response;
                     commit('SET_TOKEN', data.token);
+                    commit('SET_ULV', data.user.userLevel);
                     commit('SET_ULVPROGRESS', data.user.userLevelProgress);
                     commit('SET_UID', data.user.userId);
                     commit('SET_NAME', data.user.userName);
+                    commit('SET_AVATAR', data.user.userPicPath)
                     setToken(data.token)
                     setUser(data.user)
                 }
@@ -83,25 +90,30 @@ const actions = {
     },
 
     // get user info
-    // getInfo({commit, state}) {
-    //     return new Promise((resolve, reject) => {
-    //         getInfo(state.token).then(response => {
-    //             const {data} = response
-    //
-    //             if (!data) {
-    //                 reject('Verification failed, please Login again.')
-    //             }
-    //
-    //             const {name, avatar} = data
-    //
-    //             commit('SET_NAME', name)
-    //             commit('SET_AVATAR', avatar)
-    //             resolve(data)
-    //         }).catch(error => {
-    //             reject(error)
-    //         })
-    //     })
-    // },
+    getInfo({commit, state}) {
+        return new Promise((resolve, reject) => {
+            getUserInfo({userId: state.uid}).then(response => {
+
+                window.console.log(response)
+
+                const {user} = response.data
+
+                if (!user) {
+                    reject('Verification failed, please Login again.')
+                }
+                commit('SET_ULV', user.userLevel);
+                commit('SET_ULVPROGRESS', user.userLevelProgress);
+                commit('SET_UID', user.userId);
+                commit('SET_NAME', user.userName);
+                commit('SET_AVATAR', user.userPicPath)
+                setUser(user)
+
+                resolve(user)
+            }).catch(error => {
+                reject(error)
+            })
+        })
+    },
 
     // user logout
     // eslint-disable-next-line no-unused-vars

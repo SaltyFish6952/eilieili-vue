@@ -1,19 +1,5 @@
 import request from '@/utils/request'
 
-/***
- * 接口：/ranking/sector
- * 功能：获取某一sector的排行榜
- * @param param 参数：{sectorId:Number}
- * @returns {AxiosPromise}
- */
-
-// export function getRanking(param) {
-//     return request({
-//         url: '/ranking/sector',
-//         method: 'get',
-//         params: param
-//     })
-// }
 
 /***
  * 接口：/ranking

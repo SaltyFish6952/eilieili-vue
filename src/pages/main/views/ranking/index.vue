@@ -41,40 +41,46 @@
 
                     getRankingApi({"sectorId": this.$route.params.sectorId})
                         .then(response => {
-                            const {videos} = response.data;
-                            if (videos === undefined) {
-                                throwError(response, this);
-                            } else {
-                                this.rankingList = videos;
+
+                            try {
+                                const {rankings} = response.data;
+                                this.rankingList = rankings;
+
+                            } catch (e) {
+                                throwError(e, response, this);
+
                             }
+
 
                         })
 
                     getSectorApi({"sectorId": this.$route.params.sectorId})
                         .then(response => {
 
-                            const {sector} = response.data;
-                            if (sector === undefined) {
-                                throwError(response, this);
-                            } else {
-                                this.rankingList = sector;
+                            try {
+                                const {sector} = response.data;
+                                this.sector = sector;
+
+                            } catch (e) {
+                                throwError(e, response, this);
+
                             }
+
 
                         })
 
                 } else {
 
                     getRankingApi().then(response => {
-                        const {videos} = response.data
 
-                        if (videos === undefined) {
-                            throwError(response, this);
-                        } else {
-                            this.rankingList = videos
+                        try {
+                            const {rankings} = response.data
+                            this.rankingList = rankings
+
+                        } catch (e) {
+                            throwError(e, response, this);
+
                         }
-
-
-
 
 
                     })

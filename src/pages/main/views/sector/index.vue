@@ -3,7 +3,7 @@
         <el-page-header @back="goBack" :content="sectorName"/>
         <el-divider/>
 
-        <VideoBlock style="width: 80%;" :videos="showedVideos"/>
+        <VideoBlock style="width: 80%;" :videos="videos"/>
 
         <el-pagination
                 background
@@ -12,7 +12,7 @@
                 @next-click="showVideos(true)"
                 @current-change="currentChange"
                 :page-size="12"
-                :total="videos.length">
+                :total="totalCount">
         </el-pagination>
     </HeaderWithFooter>
 
@@ -38,35 +38,35 @@
                 sectorId: '',
                 sectorName: '',
                 videos: [],
-                showedVideos: [],
-                totalPage: '',
+                totalCount: '',
                 page: 1
             }
         },
         methods: {
             getVideosByPage(page) {
                 getAllVideosApi({"sectorId": this.sectorId, "page": page}).then(response => {
-                    const {videos} = response.data
-                    if (videos === undefined) {
-                        throwError(response, this)
-                    } else {
-                        this.videos = videos
 
-                        this.totalPage = Math.ceil(this.videos.length / 12);
+                    try {
+                        const {videos} = response.data
+                        this.videos = videos
+                        this.totalCount = response.data.count;
 
                         this.showVideos()
+                    } catch (e) {
+                        throwError(e, response, this)
                     }
+
 
                 })
             },
             getSectorInfo() {
                 getSectorApi({"sectorId": this.sectorId}).then(response => {
 
-                    const {sector} = response.data
-                    if (sector === undefined) {
-                        throwError(response, this)
-                    } else {
+                    try {
+                        const {sector} = response.data
                         this.sectorName = sector.sectorName
+                    } catch (e) {
+                        throwError(response, this)
                     }
 
 
@@ -81,25 +81,25 @@
                 window.console.log("if Next?", isNext)
 
                 if (isNext != null) {
-                    if (isNext && this.page + 1 <= this.totalPage)
+                    if (isNext)
                         this.page++;
                     else if (this.page - 1 > 0)
                         this.page--;
-                    else
-                        return;
+
+
                 }
                 /**
                  * 第一页：0-11
                  * 第二页：12-23
                  * 第n页：(n-1)*12 - (n*12-1)
                  */
-                this.showedVideos = this.videos.slice((this.page - 1) * 12,
-                    (this.page * 12 - 1) + 1)
+                // this.showedVideos = this.videos.slice((this.page - 1) * 12,
+                //     (this.page * 12 - 1) + 1)
 
             },
             currentChange(changeToPage) {
                 this.page = changeToPage
-                this.showVideos()
+                this.getVideosByPage(this.page)
             }
         },
 

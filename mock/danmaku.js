@@ -4,12 +4,12 @@ import Mock from 'mockjs'
 
 
 const danmaku = [
-    ['5', 2, '#ff000b', 'heh', '我是5秒'],
-    ['10', 1, '#FFFFFF', 'heh', '我是10秒'],
-    ['15', 3, '#FFFFFF', 'heh', '我是15秒']
+    ['5', 2, '#ff000b', 'heh', '我是5秒'],     //bottom
+    ['10', 1, '#FFFFFF', 'heh', '我是10秒'],   //top
+    ['15', 3, '#FFFFFF', 'heh', '我是15秒']    // <---------
 ];
 
-const length = Mock.Random.natural(100, 999);
+const length = Mock.Random.natural(1, 5);
 
 for (let i = 0; i < length; i++) {
     danmaku.push([

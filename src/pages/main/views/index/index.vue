@@ -42,12 +42,15 @@
             getSectors() {
                 getSectorApi().then(response => {
 
-                    const {sectors} = response.data;
-                    if (sectors === undefined) {
-                        throwError(response, this);
-                    } else {
+                    try {
+                        const {sectors} = response.data;
                         this.sectors = sectors;
+
+                    } catch (e) {
+                        throwError(e, response, this);
                     }
+
+
                 })
             }
         },
