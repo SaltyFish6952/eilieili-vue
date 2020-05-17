@@ -1,4 +1,4 @@
-# project_1
+# EiliEili - A Video Website like BiliBili
 
 ## Project setup
 ```
