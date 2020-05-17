@@ -1,24 +1,24 @@
 <template>
     <div>
-        <HeaderWithFooter>
+        <HeaderWithoutFooter>
 
             <div class="block">
                 <div class="user">
                     <div class="userIcon">
-                        <el-avatar :src="this.$store.getters.avatar" :size="70"/>
+                        <el-avatar :src="user.userPicPath ? user.userPicPath:staticIcon" :size="70"/>
                     </div>
                     <div style="float: left;">
                         <p class="name">
-                            {{$store.getters.name}}
+                            {{user.userName}}
                         </p>
 
                         <div>
                             <p style="float: left;">
-                                Lv.{{$store.getters.ulv}}
+                                Lv.{{user.userLevel}}
                             </p>
 
                             <p style="font-size: 12px; float: left; margin: 12px 10px 0 10px">
-                            {{$store.getters.ulvprogress}}/{{$store.getters.lvGap[$store.getters.ulv]}}
+                                {{user.userLevelProgress}}/{{$store.getters.lvGap[user.userLevel]}}
                             </p>
                         </div>
 
@@ -27,34 +27,52 @@
 
                 </div>
             </div>
+            <!--            <el-menu-->
+            <!--                    @select="handleSelect"-->
+            <!--                    class="menu"-->
+            <!--                    :router="true"-->
+            <!--                    :default-active="activeIndex"-->
+            <!--                    active-text-color="#339999"-->
+            <!--                    style="width: 100%" mode="horizontal">-->
+            <!--                <el-menu-item :index="activeIndex">主页</el-menu-item>-->
+            <!--                <el-menu-item id="video" :index="activeIndex +'/video'">视频</el-menu-item>-->
+            <!--                <el-menu-item id="favorite" :index="activeIndex +'/favorite'">收藏</el-menu-item>-->
+            <!--                <el-menu-item index="1" @click="handleClickDynamic">动态</el-menu-item>-->
+            <!--                <el-menu-item :index="activeIndex +'/settings'">设置</el-menu-item>-->
+            <!--            </el-menu>-->
             <el-menu
+                    v-if="user.userId"
                     @select="handleSelect"
                     class="menu"
                     :router="true"
-                    :default-active="activeIndex"
+                    :default-active="$route.path"
                     active-text-color="#339999"
                     style="width: 100%" mode="horizontal">
-                <el-menu-item :index="activeIndex">主页</el-menu-item>
-                <el-menu-item :index="activeIndex +'/video'">视频</el-menu-item>
-                <el-menu-item :index="activeIndex +'/settings'">设置</el-menu-item>
+                <el-menu-item :index="'/home/' + user.userId">主页</el-menu-item>
+                <el-menu-item id="video" :index="'/home/' + user.userId +'/video'">视频</el-menu-item>
+                <el-menu-item id="favorite" :index="'/home/' + user.userId +'/favorite'">收藏</el-menu-item>
+                <el-menu-item v-if="user.userId === $store.getters.uid" @click="handleClickDynamic">动态</el-menu-item>
+                <el-menu-item v-else :index="'/home/' + user.userId +'/dynamics'">动态</el-menu-item>
+                <el-menu-item v-if="user.userId === $store.getters.uid" :index="'/home/' + user.userId +'/settings'">设置
+                </el-menu-item>
             </el-menu>
 
             <router-view/>
 
 
-        </HeaderWithFooter>
+        </HeaderWithoutFooter>
 
     </div>
 </template>
 
 <script>
-    import HeaderWithFooter from "@/components/Container/HeaderWithFooter";
     import {getUserInfo as getUserInfoApi} from "@/api/user";
     import {throwError} from "@/utils/error";
+    import HeaderWithoutFooter from "@/components/Container/HeaderWithoutFooter";
 
     export default {
         name: "homeApp",
-        components: {HeaderWithFooter},
+        components: {HeaderWithoutFooter},
         data() {
             return {
                 user: {
@@ -62,28 +80,19 @@
                     userName: null,
                     userLevel: null,
                     userLevelProgress: null,
-                    userPicPath: require('../../assets/user.png')
+                    userPicPath: null,
                 },
-                activeIndex: ''
+                staticIcon: require('../../assets/user.png')
+
             }
         },
-        computed: {
-            percent: function () {
-                const lv = this.$store.getters.ulv;
-                const lvprogress = this.$store.getters.ulvprogress;
-                const lvArray = this.$store.getters.lvGap;
 
-                window.console.log(((lvprogress - lvArray[lv - 1]) / (lvArray[lv] - lvArray[lv - 1])) * 100)
-
-                return ((lvprogress - lvArray[lv - 1]) / (lvArray[lv] - lvArray[lv - 1])) * 100;
-            }
-        },
         methods: {
             handleSelect(key, keyPath) {
                 window.console.log(key, keyPath);
             },
             getUserInfo() {
-                getUserInfoApi({userId: this.$store.getters.uid}).then(response => {
+                getUserInfoApi({userId: this.$route.params.userId}).then(response => {
 
                     try {
 
@@ -95,14 +104,28 @@
                     }
 
                 })
+            },
+            handleClickDynamic() {
+                location.href = "/dynamic";
             }
         },
         mounted() {
 
+            let _this = this;
+            setTimeout(function () {
+                _this.user.userId = _this.$route.params.userId
+                _this.getUserInfo()
+                _this.activeIndex = '/home/' + _this.user.userId
+            }, 100);
 
-            this.user.userId = this.$store.getters.uid
-            this.activeIndex = '/home/' + this.$store.getters.uid
-            this.getUserInfo()
+
+            // if (location.pathname.lastIndexOf("/") === location.pathname.length - 1) {
+            //     this.activeIndex = location.pathname.substring(0, location.pathname.length - 1)
+            // } else {
+            //     this.activeIndex = location.pathname
+            // }
+
+
         }
     }
 </script>

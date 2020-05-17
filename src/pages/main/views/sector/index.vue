@@ -5,15 +5,19 @@
 
         <VideoBlock style="width: 80%;" :videos="videos"/>
 
-        <el-pagination
-                background
-                layout="prev, pager, next"
-                @prev-click="showVideos(false)"
-                @next-click="showVideos(true)"
-                @current-change="currentChange"
-                :page-size="12"
-                :total="totalCount">
-        </el-pagination>
+        <div class="pager">
+            <el-pagination
+                    background
+                    layout="prev, pager, next"
+                    @prev-click="showVideos(false)"
+                    @next-click="showVideos(true)"
+                    @current-change="currentChange"
+                    :page-size="12"
+                    :total="totalCount">
+            </el-pagination>
+        </div>
+
+
     </HeaderWithFooter>
 
 </template>
@@ -38,7 +42,7 @@
                 sectorId: '',
                 sectorName: '',
                 videos: [],
-                totalCount: '',
+                totalCount: null,
                 page: 1
             }
         },
@@ -138,8 +142,16 @@
         text-align: center;
     }
 
-    .sector_main .main {
-        height: 715px;
+    .sector_main {
+        height: 950px;
+        position: relative;
+    }
+
+    .pager {
+        position: absolute;
+        bottom: 80px;
+        margin: 0 auto;
+        width: 1300px;
     }
 
 </style>

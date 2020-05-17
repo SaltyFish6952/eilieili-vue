@@ -3,7 +3,7 @@ import request from '@/utils/request'
 /***
  * 接口：/video get方法
  * 功能：获取video信息
- * @param params 参数：{videoId}
+ * @param params 可选参数：[{videoId: String}]
  * @returns {AxiosPromise}
  */
 
@@ -18,14 +18,14 @@ export function getVideoInfo(params) {
 /***
  * 接口：/videos/recommend
  * 功能：根据keyword获取videos
- * @param params 参数：{keyword: String}
+ * @param data 参数：{keyword: String}
  * @returns {AxiosPromise}
  */
-export function getRecommendRandomVideos(params) {
+export function getRecommendRandomVideos(data) {
     return request({
         url: '/videos/recommend',
-        method: 'get',
-        params: params
+        method: 'post',
+        data
     })
 }
 
@@ -33,7 +33,7 @@ export function getRecommendRandomVideos(params) {
 /***
  * 接口：/videos/random get方法
  * 功能：获取某一sector的随机视频列表
- * @param params 可选参数：{sectorId:Number}
+ * @param params 可选参数：[{sectorId:Number}]
  * @returns {AxiosPromise}
  */
 
@@ -94,6 +94,23 @@ export function getComments(params) {
     })
 }
 
+
+export function postComments(data) {
+    return request({
+        url: '/comments',
+        method: 'post',
+        data
+    })
+}
+
+export function deleteComments(data) {
+    return request({
+        url: '/comments',
+        method: 'delete',
+        data
+    })
+}
+
 // /***
 //  * 接口：/replies get方法
 //  * 功能：获取comment的replies
@@ -109,35 +126,14 @@ export function getComments(params) {
 //     })
 // }
 
+export function getVideoStatus(params) {
 
-/***
- * 接口：/likes get方法
- * 功能：获取video点赞数
- * @param params 参数：{videoId}
- * @returns {AxiosPromise}
- */
-
-export function getLikes(params) {
     return request({
-        url: '/likes',
+        url: '/transcode',
         method: 'get',
         params: params
     })
-}
 
-/***
- * 接口：/favorites get方法
- * 功能：获取video收藏数
- * @param params 参数：{videoId}
- * @returns {AxiosPromise}
- */
-
-export function getFavorites(params) {
-    return request({
-        url: '/favorites',
-        method: 'get',
-        params: params
-    })
 }
 
 
@@ -218,17 +214,96 @@ export function postUserLike(data) {
     })
 }
 
-// export function getInfo(token) {
-//     return request({
-//         url: '/vue-admin-template/user/info',
-//         method: 'get',
-//         params: { token }
-//     })
-// }
-//
-// export function logout() {
-//     return request({
-//         url: '/vue-admin-template/user/logout',
-//         method: 'post'
-//     })
-// }
+//favorite
+
+/***
+ * 接口：/api/video/favorite
+ * 功能：获取用户是否收藏
+ * @param params 参数：{userId: String, videoId: String}
+ * @returns {AxiosPromise}
+ */
+
+
+export function getUserFavorite(params) {
+    return request({
+        url: '/video/favorite',
+        method: 'get',
+        params: params
+    })
+}
+
+/***
+ * 接口：/api/video/favorite
+ * 功能：用户收藏/取消收藏
+ * @param data 参数：{userId: String, videoId: String, isFavorite: Boolean}
+ * @returns {AxiosPromise}
+ */
+
+export function postUserFavorite(data) {
+    return request({
+        url: '/video/favorite',
+        method: 'post',
+        data
+    })
+
+}
+
+
+export function getVideoDownloadURL(params) {
+    return request({
+        url: "/video/download",
+        method: 'get',
+        params: params
+    })
+}
+
+
+export function removeVideo(data) {
+    return request({
+        url: '/video',
+        method: 'delete',
+        data
+    })
+}
+
+export function getUserFavoriteVideos(params) {
+    return request({
+        url: '/video/favorites',
+        method: 'get',
+        params: params
+    })
+
+}
+
+export function updateVideo(data) {
+    return request({
+        url: '/video',
+        method: 'put',
+        data
+    })
+}
+
+export function updateVideoStatus(data) {
+    return request({
+        url: '/video/check',
+        method: 'put',
+        data
+    })
+}
+
+
+export function postCommentReply(data) {
+    return request({
+        url: '/comment/reply',
+        method: 'post',
+        data
+    })
+}
+
+export function deleteCommentReply(data) {
+    return request({
+        url: '/comment/reply',
+        method: 'delete',
+        data
+    })
+}

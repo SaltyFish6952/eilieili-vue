@@ -6,7 +6,7 @@
                 <div style="padding: 14px;">
                     <div class="name">{{videoName}}</div>
                     <div class="bottom clearfix">
-                        {{videoId}}
+                        {{videoUser}}
                         <!--                    <time class="time">{{ currentDate }}</time>-->
                         <!--                        <el-button type="text" class="button">操作按钮</el-button>-->
                     </div>
@@ -92,6 +92,16 @@
 
     .clearfix:after {
         clear: both
+    }
+
+    .icon, i {
+        font-size: 14px;
+        margin: 0 10px;
+        width: 1em;
+        height: 1em;
+        vertical-align: -0.15em;
+        fill: currentColor;
+        overflow: hidden;
     }
 
 </style>

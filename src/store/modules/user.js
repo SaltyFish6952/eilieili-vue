@@ -144,6 +144,7 @@ const actions = {
     resetToken({commit}) {
         return new Promise(resolve => {
             removeToken() // must remove  token  first
+            removeUser()
             commit('RESET_STATE')
             resolve()
         })

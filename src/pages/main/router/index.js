@@ -10,18 +10,23 @@ export const constantRoutes = [
 
 
     },
+
+    {
+        path: '/search',
+        component: () => import('../views/search/index')
+    },
     {
         path: '/sector/:sectorId',
         component: () => import('../views/sector/index')
 
     },
     {
-        path:'/ranking/:sectorId',
-        component:()=>import('../views/ranking/index')
+        path: '/ranking/:sectorId',
+        component: () => import('../views/ranking/index')
     },
     {
-        path:'/ranking',
-        component:()=>import('../views/ranking/index')
+        path: '/ranking',
+        component: () => import('../views/ranking/index')
     }
 ]
 

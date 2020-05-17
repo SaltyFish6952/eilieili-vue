@@ -54,8 +54,17 @@ export function checkUserNameValid(params) {
 
 export function checkUserPasswordValid(params) {
     return request({
-        url:'/user/check/password',
-        method:'get',
+        url: '/user/check/password',
+        method: 'get',
+        params: params
+    })
+}
+
+
+export function checkNewUserAccount(params) {
+    return request({
+        url: '/user/check/account',
+        method: 'get',
         params: params
     })
 }
@@ -85,8 +94,8 @@ export function updateUserName(data) {
 
 export function updateUserPassword(data) {
     return request({
-        url:'/user/update/password',
-        method:'post',
+        url: '/user/update/password',
+        method: 'post',
         data
     })
 }
@@ -98,13 +107,38 @@ export function updateUserPassword(data) {
  * @returns {*}
  */
 
-export function insertUser(user) {
+export function insertUser(data) {
     return request({
-        url:'/user/register',
-        method:'post',
-        user
+        url: '/user/register',
+        method: 'post',
+        data
     })
 }
+
+
+export function getAllUsers() {
+    return request({
+        url: '/user/all',
+        method: 'get'
+    })
+}
+
+export function updateUser(data) {
+    return request({
+        url: '/user',
+        method: 'put',
+        data
+    })
+}
+
+export function deleteUser(data) {
+    return request({
+        url: '/user',
+        method: 'delete',
+        data
+    })
+}
+
 
 // export function logout() {
 //     return request({

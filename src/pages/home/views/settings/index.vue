@@ -9,6 +9,7 @@
                 <el-upload
                         class="avatar-uploader"
                         action="/api/upload/user/pic"
+                        :headers="headers"
                         :show-file-list="false"
                         :data="{userId: $store.getters.uid}"
                         :on-success="handleAvatarSuccess"
@@ -142,6 +143,7 @@
     } from "@/api/user";
     import {throwError} from "@/utils/error";
     import {Encrypt} from "@/utils/crypto";
+    import {getToken} from "@/utils/auth";
 
     export default {
         name: "index",
@@ -151,6 +153,7 @@
             return {
                 imageUrl: '',
                 newName: this.$store.getters.name,
+                headers: {Authorization: 'Bearer ' + getToken()},
                 nameMention: '',
                 updatePasswdForm: {
                     oldPasswd: '',
@@ -177,7 +180,6 @@
                 isDisableReNameBtn: true,
                 // isNewValid: false,
                 // isRenewValid: false
-
             };
         },
         watch: {
@@ -200,13 +202,16 @@
 
                 setTimeout(function () {
                     location.reload()
-                },1000)
+                }, 1000)
 
             },
             validOld(rule, value, callback) {
+
+                this.old_psd_check = false;
+
                 if (value === '') {
-                    // this.isOldValid = false;
-                    callback(new Error('请输入密码'));
+                    callback(new Error('请输入旧密码'));
+
                 } else {
 
                     checkUserPasswordValidApi({
@@ -219,47 +224,43 @@
 
                             if (!isValid) {
                                 // this.isOldValid = false;
-                                callback(new Error('原密码不正确！'));
+                                callback(new Error('旧密码不正确！'));
                             } else {
-                                this.$refs.form.validateField('oldPasswd');
+
                                 // this.isOldValid = true;
                                 callback();
-                            }
 
+                            }
                         } catch (e) {
                             throwError(e, response, this)
                         }
-
                     })
-
-
                 }
             },
             validNew(rule, value, callback) {
                 if (value === '') {
                     // this.isNewValid = false;
-                    callback(new Error('请输入密码'));
+                    callback(new Error('请输入新密码'));
                 } else {
-
                     const reg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/;
 
                     if (reg.test(value)) {
-                        // this.isNewValid = true;
 
+                        if (value === this.updatePasswdForm.oldPasswd) {
+                            callback(new Error('新密码与旧密码一致！'));
 
-                        callback();
+                        } else {
+                            callback();
+                        }
+
                     } else {
-                        // this.isNewValid = false;
                         callback(new Error('密码至少8-16个字符，至少1个大写字母，1个小写字母和1个数字!'));
-
                     }
-
-
                 }
             },
             validRenew(rule, value, callback) {
                 if (value === '') {
-                    callback(new Error('请再次输入密码'));
+                    callback(new Error('请再次输入新密码'));
                     // this.isRenewValid = false;
                 } else if (value !== this.updatePasswdForm.newPasswd) {
                     callback(new Error('两次输入密码不一致!'));
@@ -269,10 +270,7 @@
 
                     callback();
                 }
-            }
-
-
-            ,
+            },
             beforeAvatarUpload(file) {
                 const isJPG = file.type === 'image/jpeg';
                 const isPNG = file.type === 'image/png';
@@ -289,15 +287,12 @@
             checkUserNameValid() {
                 let that = this
                 this.nameMention = '查询中...'
-
                 if (this.newName.length < 3 || this.newName.length > 15) {
                     this.nameMention = '请输入3-15个字符的姓名！'
                     this.isDisableReNameBtn = true
                     return
                 }
-
                 checkUserNameValidApi({checkName: this.newName, userId: this.$store.getters.uid}).then(response => {
-
                     try {
                         const {isValid} = response.data
                         if (isValid) {
@@ -307,18 +302,13 @@
                             that.nameMention = '该用户名已被使用！'
                             that.isDisableReNameBtn = true
                         }
-
                     } catch (e) {
                         throwError(e, response, this)
                     }
-
-
                 })
             },
             updateUserName() {
-
                 updateUserNameApi({userId: this.$store.getters.uid, newName: this.newName}).then(response => {
-
                     try {
                         if (response.code === 0) {
                             this.$store.dispatch("user/getInfo");
@@ -327,10 +317,9 @@
                                 message: '用户名修改成功',
                                 type: 'success'
                             })
-
                             setTimeout(function () {
                                 location.reload()
-                            },1000)
+                            }, 1000)
 
                         } else {
                             this.$message.error('操作错误！ ' + response)
@@ -338,8 +327,6 @@
                     } catch (e) {
                         throwError(e, response, this)
                     }
-
-
                 })
             },
             updateUserPassword() {
@@ -361,7 +348,7 @@
 
                                     setTimeout(function () {
                                         location.reload()
-                                    },1000)
+                                    }, 1000)
 
                                 } else {
                                     this.$message.error('操作错误！ ' + response)
@@ -369,14 +356,20 @@
                             } catch (e) {
                                 throwError(e, response, this)
                             }
-
                         })
                     }
-
                 })
-
-
             }
+        },
+        beforeRouteEnter(to, from, next) {
+
+            next(vm => {
+                if (vm.$store.getters.uid !== vm.$route.params.userId) {
+                    window.location.href = '/'
+                }
+            })
+
+
         }
     }
 </script>
@@ -437,14 +430,13 @@
     }
 
 
-
-    .edit .input{
+    .edit .input {
         width: 300px;
         margin-left: 100px;
         margin-top: 20px;
     }
 
-    .edit .el-form-item__error{
+    .edit .el-form-item__error {
         margin-left: 100px;
     }
 

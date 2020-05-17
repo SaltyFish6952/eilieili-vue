@@ -10,11 +10,13 @@
             <div class="search_panel">
                 <el-autocomplete
                         style="width: 400px;"
+                        :clearable="true"
                         v-model="search_input"
                         placeholder="请输入内容"
                         :fetch-suggestions="querySearch"
                         @select="selectedSearch">
-                    <el-button slot="append" icon="el-icon-search"></el-button>
+                    <el-button slot="append" icon="el-icon-search"
+                               @click="getSearch"></el-button>
                 </el-autocomplete>
             </div>
 
@@ -38,6 +40,9 @@
                             </el-dropdown-item>
                             <el-dropdown-item icon="el-icon-video-camera" command="/upload">
                                 上传中心
+                            </el-dropdown-item>
+                            <el-dropdown-item icon="el-icon-wind-power" command="/dynamic">
+                                动态
                             </el-dropdown-item>
                         </el-dropdown-menu>
                     </el-dropdown>
@@ -64,7 +69,7 @@
 
     import LoginDialog from "@/components/Dialog/LoginDialog";
     import RegisterDialog from "@/components/Dialog/RegisterDialog";
-    import {getVideoQuery} from "@/api/video";
+    import {getVideoQuery as getVideoQueryApi} from "@/api/video";
     import {throwError} from "@/utils/error";
 
     export default {
@@ -85,7 +90,7 @@
             querySearch: function (queryString, callback) {
 
                 if (queryString !== '') {
-                    getVideoQuery({query: queryString}).then(response => {
+                    getVideoQueryApi({query: queryString}).then(response => {
 
                         try {
                             const {videos} = response.data;
@@ -111,7 +116,12 @@
                     this.redirctTo("/video/" + item.id)
 
             },
-            redirctTo: function (toPath) {
+            getSearch() {
+
+                if (this.search_input !== '')
+                    this.redirctTo("/search?string=" + this.search_input)
+            }
+            , redirctTo: function (toPath) {
                 // let nowPath = window.document.location.pathname;
                 // window.console.log(nowPath,toPath)
                 // window.console.log(this.$router)
@@ -143,6 +153,9 @@
                             message: '已退出登录',
                             type: 'success'
                         });
+                        setTimeout(function () {
+                            location.reload();
+                        }, 200)
                     } else {
                         this.$message.error(msg);
                     }

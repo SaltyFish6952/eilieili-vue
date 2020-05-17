@@ -8,13 +8,21 @@ export const constantRoutes = [
         path: '/home/:userId',
         component: () => import('../views/home/index')
 
-    },{
+    }, {
         path: '/home/:userId/video',
-        component:() => import('../views/video/index')
+        component: () => import('../views/video/index')
+    },
+    {
+        path: '/home/:userId/favorite',
+        component: () => import('../views/favorite/index')
     },
     {
         path: '/home/:userId/settings',
-        component:() =>import('../views/settings/index')
+        component: () => import('../views/settings/index')
+    },
+    {
+        path: '/home/:userId/dynamics',
+        component: () => import('../views/dynamic/index')
     }
 ]
 

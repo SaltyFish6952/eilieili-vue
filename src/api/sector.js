@@ -1,7 +1,6 @@
 import request from '@/utils/request'
 
 
-
 /***
  * 接口：/sector
  * 功能：获取sector信息
@@ -16,5 +15,30 @@ export function getSector(param) {
         method: 'get',
         params: param
     })
+}
+
+export function postSector(data) {
+    return request({
+        url: '/sector',
+        method: 'post',
+        data
+    })
+}
+
+export function updateSector(data) {
+    return request({
+        url: '/sector',
+        method: 'put',
+        data
+    })
+}
+
+export function deleteSector(data) {
+    return request({
+        url: '/sector',
+        method: 'delete',
+        data
+    })
+
 }
 

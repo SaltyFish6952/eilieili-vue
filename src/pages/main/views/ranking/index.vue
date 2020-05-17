@@ -1,31 +1,32 @@
 <template>
-    <HeaderWithFooter>
+    <HeaderWithoutFooter>
         <el-page-header @back="goBack" :content="content"/>
         <!--        <el-divider/>-->
 
-        <DetailList :ranking-list="rankingList"/>
+        <DetailList v-loading="loading" :ranking-list="rankingList"/>
 
-    </HeaderWithFooter>
+    </HeaderWithoutFooter>
 
 </template>
 
 <script>
-    import HeaderWithFooter from "@/components/Container/HeaderWithFooter";
     import DetailList from "@/components/RankingList/Detail/List";
     import {
         getRanking as getRankingApi
     } from "@/api/ranking"
     import {getSector as getSectorApi} from "@/api/sector";
     import {throwError} from "@/utils/error";
+    import HeaderWithoutFooter from "@/components/Container/HeaderWithoutFooter";
 
     export default {
         name: "index",
-        components: {DetailList, HeaderWithFooter},
+        components: {HeaderWithoutFooter, DetailList},
         data() {
             return {
                 rankingList: [],
                 sector: {},
-                content: '排行榜'
+                content: '排行榜',
+                loading: true
             }
         },
         methods: {
@@ -45,6 +46,7 @@
                             try {
                                 const {rankings} = response.data;
                                 this.rankingList = rankings;
+                                this.loading = false
 
                             } catch (e) {
                                 throwError(e, response, this);
@@ -76,7 +78,7 @@
                         try {
                             const {rankings} = response.data
                             this.rankingList = rankings
-
+                            this.loading = false
                         } catch (e) {
                             throwError(e, response, this);
 

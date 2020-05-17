@@ -38,13 +38,28 @@ module.exports = {
             title: 'home',
             chunks: ['chunk-vendors', 'chunk-common', 'home']
         },
-        upload:{
+        upload: {
             entry: 'src/pages/upload/index.js',
             template: 'public/index.html',
             filename: 'upload',
             title: 'upload',
             chunks: ['chunk-vendors', 'chunk-common', 'upload']
+        },
+        admin: {
+            entry: 'src/pages/admin/index.js',
+            template: 'public/index.html',
+            filename: 'admin',
+            title: '管理控制台',
+            chunks: ['chunk-vendors', 'chunk-common', 'admin']
+        },
+        dynamic:{
+            entry: 'src/pages/dynamic/index.js',
+            template: 'public/index.html',
+            filename: 'dynamic',
+            title: 'dynamic',
+            chunks: ['chunk-vendors', 'chunk-common', 'dynamic']
         }
+
 
     }
 }

@@ -2,24 +2,92 @@
 
     <div>
         <div class="comment">
-            <div class="commentIcon" v-if="user.userPicPath !== undefined">
-                <el-avatar v-if="user.userPicPath !== undefined" :size="50" :src="user.userPicPath"/>
+            <div class="commentIcon" v-if="comment.userPicPath !== undefined">
+                <el-avatar v-if="comment.userPicPath !== undefined" :size="50" :src="comment.userPicPath ? comment.userPicPath : staticIcon"/>
             </div>
-            <el-link class="uNameLink" :underline="false" href="">{{user.userName ? user.userName : 'xxx'}}</el-link>
-            <div class="uLevel">{{'Lv.' + user.userLevel}}</div>
+            <el-link class="uNameLink" :underline="false" :href="'/home/' + comment.userId">{{comment.userName}}
+            </el-link>
+            <div class="uLevel">{{'Lv.' + comment.userLevel}}</div>
             <p class="commentText">
-                {{comment.commentText ? comment.commentText : 'xxxxxxxxxxxxxxxxx'}}
+                {{comment.commentText}}
             </p>
             <div class="function">
-                <p class="commentTime">{{comment.commentTime}}</p>
-                <el-button class="commentBtn" type="text">回复</el-button>
-            </div>
 
-            <div v-if="replies.length !== 0" class="replies">
-                <div v-for="(item, $index) in replies" :key="$index">
-                    <!--                    <ReplyItem :reply="item"/>-->
+                <div style="overflow: auto;">
+                    <p class="commentTime">{{comment.commentTime}}</p>
+
+                    <el-popconfirm title="确定要删除吗？" @onConfirm="deleteComment(comment.commentId)">
+                        <el-button slot="reference" class="deleteBtn" type="text"
+                                   v-if="comment.userId === $store.getters.uid">删除
+                        </el-button>
+                    </el-popconfirm>
+                    <el-button class="commentBtn" v-if="!active && $store.getters.uid" @click="active = true"
+                               type="text">
+                        回复
+                    </el-button>
+                    <el-button class="commentBtn" v-if="active && $store.getters.uid" @click="active = false"
+                               type="text">
+                        取消
+                    </el-button>
+                </div>
+
+
+                <div>
+                    <el-input show-word-limit maxlength="150" style="width: 90%;" type="textarea"
+                              v-model="content1" v-if="active"/>
+                    <el-button style="margin-left: 10px;" type="primary"
+                               @click="handleSubmitReply(comment.commentId, null, comment.userId, $store.getters.uid)"
+                               v-if="active">发送
+                    </el-button>
+                </div>
+
+                <el-divider class="divider"/>
+
+                <div v-if="reply.length !== 0" class="replies">
+
+
+                    <div v-for="(item, $index) in reply" :key="$index" class="reply">
+
+                        <p>
+                            <el-link :underline="false" style="vertical-align: unset;"
+                                     :href="'/home/' + item.replyFromId">{{item.replyFromName}}
+                            </el-link>
+                            回复
+                            <el-link :underline="false" style="vertical-align: unset;"
+                                     :href="'/home/' + item.replyToId">{{item.replyToName}}</el-link> :
+                        </p>
+                        <div v-html="item.replyText"/>
+                        <div class="replyFunc">
+                            <p class="replyTime">{{item.replyTime}}</p>
+                            <el-popconfirm title="确定要删除吗？" @onConfirm="handleDeleteReply(item.replyId)">
+                                <el-button slot="reference" class="replyBtn" type="text"
+                                           v-if="item.replyFromId === $store.getters.uid">删除
+                                </el-button>
+                            </el-popconfirm>
+                            <el-button class="replyBtn" v-if="!item.active && $store.getters.uid" type="text"
+                                       @click="item.active = true">
+                                回复
+                            </el-button>
+                            <el-button class="replyBtn" v-if="item.active" type="text"
+                                       @click="item.active = false">
+                                取消
+                            </el-button>
+
+                            <div>
+                                <el-input show-word-limit maxlength="150" style="width: 80%;" type="textarea"
+                                          v-model="content2[$index]" v-if="item.active"/>
+                                <el-button style="margin-left: 10px;" type="primary"
+                                           @click="handleSubmitReply(comment.commentId, $index, item.replyFromId, $store.getters.uid)"
+                                           v-if="item.active">发送
+                                </el-button>
+                            </div>
+
+                        </div>
+
+                    </div>
                 </div>
             </div>
+
 
         </div>
 
@@ -31,15 +99,20 @@
 <script>
 
 
-    import {getUserInfo as getUserInfoApi} from "@/api/user";
-    import {getReplies as getRepliesApi} from "@/api/video";
-    import {throwError} from "@/utils/error";
+    // import {getReplies as getRepliesApi} from "@/api/video";
+    // import {throwError} from "@/utils/error";
     // import ReplyItem from "@/components/Comment/ReplyItem";
 
 
+    import {
+        deleteCommentReply as deleteCommentReplyApi,
+        deleteComments as deleteCommentsApi,
+        postCommentReply
+    } from "@/api/video";
+    import {throwError} from "@/utils/error";
+
     export default {
         name: "CommentItem",
-        components: {},
         props: {
             comment: {
                 type: Object,
@@ -52,57 +125,116 @@
                         commentTime: null
                     }
                 }
-            }
+            },
+            reply: Array
         },
         data() {
             return {
-                user: {
-                    userId: null,
-                    userName: null,
-                    userPicPath: null,
-                    userLevel: null,
-                    userLevelProgress: null
-                },
-                replies: []
+                active: false,
+                content1: '',
+                content2: [],
+                staticIcon: require('../../assets/user.png')
             }
         },
         methods: {
-            getUserInfo() {
-                getUserInfoApi({userId: this.comment.userId}).then(response => {
+
+            handleDeleteReply(replyId) {
+
+                deleteCommentReplyApi({replyId: replyId}).then(response => {
 
                     try {
-                        const {user} = response.data;
-                        this.user = user;
+
+                        if (response.code === 0) {
+
+                            this.$message.success('回复删除成功！')
+                            setTimeout(function () {
+                                location.reload()
+                            }, 500)
+                        } else {
+                            throwError("回复删除失败", response, this)
+                        }
 
                     } catch (e) {
                         throwError(e, response, this)
-
                     }
 
-
                 })
+
+
             },
-            getReply() {
-                getRepliesApi({commentId: this.comment.commentId}).then(response => {
+            handleSubmitReply(commentId, index, replyTo, replyFrom) {
 
-                    try {
-                        const {replies} = response.data;
-                        this.replies = replies;
+                let replyText = null
 
-                    } catch (e) {
-                        throwError(e, response, this)
+                if (index === null) {
+                    replyText = this.content1
+                } else {
+                    replyText = this.content2[index]
+                }
 
+                if (replyText !== null) {
+
+                    if (replyText.length >= 5) {
+                        postCommentReply({
+                            commentId: commentId,
+                            replyText: replyText,
+                            replyFrom: replyFrom,
+                            replyTo: replyTo
+                        }).then(response => {
+
+                            try {
+
+                                if (response.code === 0) {
+
+                                    this.$message.success('回复发送成功！')
+                                    setTimeout(function () {
+                                        location.reload()
+                                    }, 500)
+                                } else {
+                                    throwError("回复发送失败", response, this)
+                                }
+                            } catch (e) {
+                                throwError(e, response, this)
+                            }
+                        })
+                    } else {
+                        this.$message.error("请输入回复大于五个字符的内容！")
                     }
 
 
-                })
+                } else {
+                    this.$message.error("请输入回复内容！")
+                }
 
+            },
+
+
+            deleteComment(commentId) {
+                deleteCommentsApi({commentId: commentId}).then(response => {
+
+                    try {
+
+                        if (response.code === 0) {
+
+                            this.$message.success('评论删除成功！')
+                            setTimeout(function () {
+                                location.reload()
+                            }, 500)
+                        } else {
+                            throwError("评论失败", response, this)
+                        }
+
+                    } catch (e) {
+                        throwError(e, response, this)
+                    }
+
+                })
             }
+
+
         },
         mounted() {
-            this.getUserInfo();
-            this.getReply();
-            window.console.log("s")
+
         }
 
     }
@@ -144,7 +276,6 @@
         float: right;
         width: 90%;
         text-align: left;
-        height: 40px;
     }
 
     .comment .function .commentTime {
@@ -155,15 +286,39 @@
         line-height: 40px;
     }
 
-    .comment .commentBtn {
-        height: 40px;
-        margin: 0 10px;
+    .comment .commentBtn, .comment .deleteBtn {
+
+        margin-left: 10px;
+        line-height: 38px;
+        padding: 0;
+
     }
 
+
     .comment .replies {
-        float: right;
         width: 90%;
         text-align: left;
+    }
+
+    .reply {
+        margin-left: 20px;
+    }
+
+    .replies .reply .replyFunc{
+        overflow: auto;
+    }
+
+    .replies .reply .replyFunc .replyTime {
+        float: left;
+    }
+
+    .replies .reply .replyFunc .replyBtn {
+        height: 40px;
+        margin-left: 10px;
+    }
+
+    .divider {
+        margin: 5px 0;
     }
 
 

@@ -6,17 +6,6 @@
                 <el-divider/>
             </div>
 
-            <div>
-                <h3>我的上传</h3>
-                <el-divider/>
-            </div>
-
-            <div>
-                <div style="margin: 10px 0;" :v-if="userVideos.length !== 0" v-for="(item,$index) in userVideos"
-                     :key="$index">
-                    <el-image class="image" lazy :src="item.videoPicPath"/>
-                </div>
-            </div>
 
             <div style="width: 100%;">
                 <h3>新的上传</h3>
@@ -31,8 +20,10 @@
                         action="/api/upload/video"
                         :multiple="false"
                         :limit="1"
+                        :headers="headers"
                         :data="{uuid:uploadForm.uuid}"
                         :before-upload="handleUploadVideo"
+                        :on-success="handleVSuccess"
                 >
                     <i class="el-icon-upload"></i>
                     <div class="el-upload__text">将视频拖到此处，或<em>点击上传</em></div>
@@ -55,8 +46,10 @@
                                 :multiple="false"
                                 name="videoPic"
                                 :limit="1"
+                                :headers="headers"
                                 :data="{uuid:uploadForm.uuid}"
-                                :before-upload="handleUploadPicAndInfo">
+                                :before-upload="handleUploadPicAndInfo"
+                                :on-success="handleVPSuccess">
 
                             <el-button slot="trigger" style="margin-left: 200px;" size="small" type="primary">选取文件
                             </el-button>
@@ -95,13 +88,62 @@
                     </el-form-item>
 
                     <el-form-item>
-                        <el-button style="float: right;" type="primary" @click="submit">上传</el-button>
+                        <el-button :disabled="!(isUploadVideo && isUploadVideoPic)" style="float: right;" type="primary"
+                                   @click="submit">上传
+                        </el-button>
 
                     </el-form-item>
 
                 </el-form>
 
             </div>
+
+
+            <div>
+                <h3>我的上传</h3>
+                <el-divider/>
+            </div>
+
+            <div>
+                <div class="videos" :v-if="userVideos.length !== 0"
+                     v-for="(item,$index) in userVideos"
+                     :key="$index">
+
+                    <el-image class="image" lazy :src="item.videoPicPath"/>
+                    <div style="float: left; margin: 0 20px;">
+                        <p>{{item.videoName}}</p>
+                        <p v-if="item.status === 0">最大分辨率：{{item.maxQuality}}</p>
+                    </div>
+
+
+                    <div class="status">转码状态：
+                        <el-tag v-if="item.status === 0" type="success" effect="dark">
+                            {{status[item.status]}}
+                        </el-tag>
+                        <el-tag v-else-if="item.status === -1" type="danger" effect="dark">
+                            转码出错
+                        </el-tag>
+                        <el-tag v-else-if="item.status === -2" type="danger" effect="dark">
+                            审核不通过
+                        </el-tag>
+                        <el-tag v-else effect="dark">
+                            {{status[item.status]}}<i class="el-icon-loading"></i>
+                        </el-tag>
+                    </div>
+
+                    <el-popconfirm @onConfirm="handleDelete(item.uuid)" title="确定要删除吗？">
+                        <el-button slot="reference" v-if="item.status === 0 || item.status === -1|| item.status === -2"
+                                   class="delete"
+                                   size="mini" type="danger">
+                            删除
+                        </el-button>
+                    </el-popconfirm>
+
+
+                </div>
+            </div>
+
+
         </HeaderWithFooter>
 
     </div>
@@ -112,13 +154,16 @@
     import {getSector as getSectorApi} from "@/api/sector";
     import {throwError} from "@/utils/error";
     import {generateUUID} from "@/utils/uuid";
-    import {getUserVideos as getUserVideosApi, postVideoInfo} from "@/api/video";
+    import {getToken} from "@/utils/auth";
+    import {getVideoStatus as getVideoStatusApi, postVideoInfo, removeVideo} from "@/api/video";
 
     export default {
         name: "upload",
         components: {HeaderWithFooter},
         data() {
             return {
+                status: ['审核通过', '待审核', '音频转码中', '360p转码中', '720p转码中', '1080p转码中', '转码准备中'],
+                headers: {Authorization: 'Bearer ' + getToken()},
                 sectors: [],
                 userVideos: [],
                 selectedSector: '',
@@ -141,10 +186,18 @@
                     sectorId: [
                         {required: true, message: '请选择视频所属分区', trigger: 'blur'},
                     ]
-                }
+                },
+                isUploadVideo: false,
+                isUploadVideoPic: false
             }
         },
         methods: {
+            handleVSuccess() {
+                this.isUploadVideo = true
+            },
+            handleVPSuccess() {
+                this.isUploadVideoPic = true
+            },
             getSectors() {
                 getSectorApi().then(response => {
 
@@ -160,7 +213,7 @@
                 })
             },
             getUserVideos() {
-                getUserVideosApi({userId: this.$store.getters.uid}).then(response => {
+                getVideoStatusApi({userId: this.$store.getters.uid}).then(response => {
 
                     try {
 
@@ -239,6 +292,31 @@
                     this.$message.error('上传头像图片大小不能超过 2MB!');
                 }
                 return (isJPG || isPNG) && isLt2M;
+            },
+
+            handleDelete(uuid) {
+
+                removeVideo({uuid: uuid}).then(response => {
+
+                    try {
+
+                        if (response.code === 0) {
+                            this.$message.success('视频删除成功！');
+
+                            setTimeout(function () {
+                                location.reload(true)
+                            }, 500)
+
+                        } else {
+                            throwError("视频删除失败", response, this);
+                        }
+
+                    } catch (e) {
+                        throwError(e, response, null)
+                    }
+
+                })
+
             }
 
         },
@@ -281,6 +359,27 @@
         width: 192px;
         height: 108px;
         display: block;
+        float: left;
+    }
+
+    .videos {
+        position: relative;
+        margin: 10px 0;
+        width: 100%;
+        float: left;
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .videos .status {
+        position: absolute;
+        line-height: 108px;
+        right: 20px;
+    }
+
+    .videos .delete {
+        position: absolute;
+        right: 20px;
+        bottom: 5px;
     }
 
 

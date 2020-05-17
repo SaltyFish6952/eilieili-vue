@@ -9,14 +9,25 @@
         props: {
             url: String,
             isRouter: Boolean,
-            routerParam: String
+            routerParam: String,
+            func: {
+                default: null,
+                type: Function
+            }
         },
         methods: {
             more: function () {
-                if (this.isRouter)
-                    this.$router.push({path: this.url + `/${this.routerParam}`})
-                else
-                    window.location.href = this.url;
+
+                if (this.func === null) {
+                    if (this.isRouter)
+                        this.$router.push({path: this.url + `/${this.routerParam}`})
+                    else
+                        window.location.href = this.url;
+
+                }else {
+                    this.func()
+                }
+
 
             }
         }

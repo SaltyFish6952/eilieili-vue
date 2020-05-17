@@ -6,7 +6,7 @@
                         :video-id="video.videoId"
                         :video-name="video.videoName"
                         :video-pic-path="video.videoPicPath"
-                        :video-user="video.videoUser"/>
+                        :video-user="video.userName"/>
             </el-col>
         </el-row>
 
